@@ -1,0 +1,74 @@
+# Load the 'pastecs' package for statistical analysis
+library(pastecs) 
+
+# Calculate descriptive statistics for selected columns of 'vehiculos', excluding basic stats, include normalization, rounded to 3 decimal places
+round(stat.desc(vehiculos[, vehiculos2], basic = FALSE, norm = TRUE), digits = 3)
+
+# Calculate descriptive statistics for specific columns of 'coches2', excluding basic stats, include normalization, rounded to 3 decimal places
+round(stat.desc(coches2[, c("cilindros", "desplazamiento", "CV", "peso", "aceleracion", "precio")], basic = FALSE, norm = TRUE), digits = 3)
+
+# Load the 'car' package for regression diagnostics
+library(car) 
+
+# Create a QQ plot for the 'peso' variable in 'coches2' to assess normality
+qqPlot(coches2$peso)
+
+# Create a QQ plot for the 'peso' variable in 'coches2' with grouping by 'origen'
+qqPlot(coches2$peso, groups = coches2$origen)
+
+# Load the 'ggplot2' package for data visualization
+library(ggplot2) 
+
+# Create a density plot for the 'consumo' variable in 'coches2'
+ggplot(coches2, aes(consumo)) + geom_density()
+
+# Create a density plot for the 'consumo' variable in 'coches2', colored by 'origen'
+ggplot(coches2, aes(consumo, color = origen)) + geom_density()
+
+# Load the 'nortest' package for normality tests
+library(nortest) 
+
+# Create a subset of 'coches2' with only numerical variables
+vehiculosnumerico <- coches2[, c("cilindros", "desplazamiento", "CV", "peso", "aceleracion", "precio")] 
+
+# Perform Shapiro-Wilk normality test on the 'cilindros' column of 'coches2'
+shapiro.test(coches2$cilindros)
+
+# Apply Shapiro-Wilk normality test to each column in 'vehiculosnumerico'
+lapply(vehiculosnumerico, shapiro.test)
+
+# Apply Lilliefors (Kolmogorov-Smirnov) normality test to each column in 'vehiculosnumerico'
+lapply(vehiculosnumerico, lillie.test)
+
+# This line appears to be incorrect or incomplete: 'ggplot(coches2$precio, coches2$origen, shapiro.tes)'
+
+# Load the 'MVN' and 'MSQC' packages for multivariate normality testing and statistical quality control
+library(MVN) 
+library(MSQC) 
+
+# Perform Lilliefors test and create QQ plots for 'vehiculosnumerico'
+mvn(vehiculosnumerico, univariateTest = "Lillie", multivariatePlot = "qq")
+
+# Perform Mardia's multivariate normality test and Lilliefors test for 'vehiculosnumerico'
+mvn(vehiculosnumerico, mvnTest = "mardia", univariateTest = "Lillie")
+
+# Perform Royston's multivariate normality test and Lilliefors test for 'vehiculosnumerico'
+mvn(vehiculosnumerico, mvnTest = "royston", univariateTest = "Lillie")
+
+# Perform Royston's test on 'desplazamiento' and 'CV', create QQ plot for univariate and perspective plot for multivariate
+mvn(vehiculosnumerico[, c("desplazamiento", "CV")], mvnTest = "royston", univariateTest = "Lillie", univariatePlot = "qq", multivariatePlot = "persp")
+
+# Perform Lilliefors test on square root transformed 'vehiculosnumerico'
+mvn(vehiculosnumerico, univariateTest = "Lillie", transform = "sqrt")
+
+# Re-load the 'car' package and apply Levene's Test for equality of variances across 'origen' groups
+library(car) 
+lapply(vehiculosnumerico, leveneTest, coches2$origen)
+
+# Load the 'biotools' package and perform Box's M test for equality of covariance matrices across 'origen' groups in 'coches3'
+library(biotools) 
+boxM(coches3[, c("cilindros", "desplazamiento", "CV", "peso", "aceleracion", "precio")], coches3$origen)
+
+# Load the 'PerformanceAnalytics' package and plot 'vehiculosnumerico'
+library("PerformanceAnalytics") 
+plot(vehiculosnumerico)
